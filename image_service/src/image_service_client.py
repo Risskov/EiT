@@ -19,7 +19,7 @@ class Image_client:
             print(f"Service call failed: {e}")
 
 if __name__ == '__main__':
-    #rospy.init_node('image_service_client')
+    rospy.init_node('image_service_client')
     image_client = Image_client()
     cv2.namedWindow('Camera image', cv2.WINDOW_AUTOSIZE)
     try:
