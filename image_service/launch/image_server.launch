@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="image_service" type="image_service_server.py" name="image_service_server" output="screen">
+  </node>
+</launch>
