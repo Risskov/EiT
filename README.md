@@ -26,7 +26,7 @@ catkin_make
 # activate the workspace (ie: source it)
 source devel/setup.bash
 ```
-### Running
+### Starting the driver
 
 #### On the ROS PC
 Run calibration of the robot
@@ -39,3 +39,14 @@ Run the driver
 
 #### On the robot
 Check if the ROS PC IP is correct in `Installation -> URCaps -> External Control`. If not either load it from `Open -> Installation` or create a new one.
+
+### Testing the driver
+The driver can be tested by changing the joint values using `rqt_joint_trajectory_controller`. Install it with
+
+`sudo apt install ros-noetic-rqt-joint-trajectory-controller`
+
+Run it with
+
+`rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller`
+
+
