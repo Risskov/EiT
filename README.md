@@ -49,4 +49,13 @@ Run it with
 
 `rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller`
 
+### Controlling the robot
+To control the robot using ROS, use the action server on
+
+`/scaled_pos_joint_traj_controller/follow_joint_trajectory`
+
+The force sensor data is being published on the topic
+
+`/wrench`
+
 
