@@ -20,7 +20,7 @@ sudo apt update -qq
 rosdep update
 rosdep install --from-paths src --ignore-src -y
 
-# build the workspace
+# build the workspace (alternatively: catkin build)
 catkin_make
 
 # activate the workspace (ie: source it)
