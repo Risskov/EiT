@@ -2,6 +2,8 @@
 ## Nodes for image services
 ### Server
 The server provides the service `/get_image`. The request is of type Empty (no input).
+
+## Install UR ROS Driver
 ```
 # go to catkin workspace
 cd catkin_ws
