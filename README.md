@@ -31,7 +31,7 @@ source devel/setup.bash
 #### On the ROS PC
 Run calibration of the robot
 
-`roslaunch ur_calibration calibration_correction.launch   robot_ip:=192.168.1.20 target_filename:="${HOME}/ur10e_calibration.yaml"`
+`roslaunch ur_calibration calibration_correction.launch robot_ip:=192.168.1.20 target_filename:="${HOME}/ur10e_calibration.yaml"`
 
 Run the driver
 
