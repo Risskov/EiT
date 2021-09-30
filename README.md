@@ -27,10 +27,14 @@ catkin_make
 source devel/setup.bash
 ```
 ### Running
+
 #### On the ROS PC
 Run calibration of the robot
+
 `roslaunch ur_calibration calibration_correction.launch   robot_ip:=192.168.1.20 target_filename:="${HOME}/ur10e_calibration.yaml"`
+
 Run the driver
+
 `roslaunch ur_robot_driver ur10e_bringup.launch robot_ip:=192.168.1.20 kinematics_config:=${HOME}/ur10e_calibration.yaml`
 
 #### On the robot
