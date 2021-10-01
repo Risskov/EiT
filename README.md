@@ -28,6 +28,9 @@ source devel/setup.bash
 ```
 ### Starting the driver
 
+#### On the robot
+Check if the ROS PC IP is correct in `Installation -> URCaps -> External Control`. If not, either load it from `Open -> Installation` or create a new one.
+
 #### On the ROS PC
 Run calibration of the robot
 
@@ -36,9 +39,6 @@ Run calibration of the robot
 Run the driver
 
 `roslaunch ur_robot_driver ur10e_bringup.launch robot_ip:=192.168.1.20 kinematics_config:=${HOME}/ur10e_calibration.yaml`
-
-#### On the robot
-Check if the ROS PC IP is correct in `Installation -> URCaps -> External Control`. If not either load it from `Open -> Installation` or create a new one.
 
 ### Testing the driver
 The driver can be tested by changing the joint values using `rqt_joint_trajectory_controller`. Install it with
