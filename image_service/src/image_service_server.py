@@ -5,7 +5,7 @@ import rospy
 from sensor_msgs.msg import Image
 from image_service.srv import ImageService, ImageServiceResponse
 
-class Image_server:
+class ImageServer:
     def __init__(self):
         self.bridge = CvBridge()
         self.cap = cv2.VideoCapture(0)
@@ -24,4 +24,4 @@ class Image_server:
         rospy.spin()
 
 if __name__ == "__main__":
-    img_service = Image_server()
+    img_service = ImageServer()
