@@ -31,6 +31,8 @@ source devel/setup.bash
 #### On the robot
 Check if the ROS PC IP is correct in `Installation -> URCaps -> External Control`. If not, either load it from `Open -> Installation` or create a new one.
 
+Run the Robot Program after the driver has been started on the ROS PC
+
 #### On the ROS PC
 Run calibration of the robot
 
