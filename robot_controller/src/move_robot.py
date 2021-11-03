@@ -9,7 +9,7 @@ class MoveRobot:
     def __init__(self):
         self.server = actionlib.SimpleActionServer("move_robot", MoveRobotAction, self.callback, False)
         self.rtde_c = RTDEControl("192.168.1.20", RTDEControl.FLAG_USE_EXT_UR_CAP)
-        self.rtde_r = rtde_receive.RTDEReceiveInterface("127.0.0.1")
+        self.rtde_r = rtde_receive.RTDEReceiveInterface("192.168.1.20")
         self.server.start()
         print("Action server started")
 
