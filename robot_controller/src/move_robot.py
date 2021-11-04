@@ -5,7 +5,7 @@ import rospy
 import actionlib
 from rtde_control import RTDEControlInterface as RTDEControl
 from rtde_receive import RTDEReceiveInterface as RTDEReceive
-from robot_controller.msg import MoveRobotAction, MoveRobotResult, StopRobotAction, StopRobotResult
+from robot_controller.msg import MoveRobotAction, MoveRobotResult, MoveRobotFeedback, StopRobotAction, StopRobotResult
 
 class ServoControl:
     def __init__(self, controller, receiver):
@@ -18,7 +18,7 @@ class ServoControl:
         self.lookAheadTime = 0.1
         self.gain = 600
 
-    def runTrajectory(self, goal):
+    def runTrajectory(self, goal, server):
         self.stop = False
         current_pose = self.receive.getActualTCPPose()
         trajectory = np.linspace(current_pose, goal.pose, 1000)
@@ -31,7 +31,7 @@ class ServoControl:
             start_time = time.time()
 
             self.control.servoL(point, self.velocity, self.acceleration, self.frequency / 2, self.lookAheadTime, self.gain)
-
+            server.publish_feedback(MoveRobotFeedback(feedback=self.receive.getActualTCPPose()))
             diff = time.time() - start_time  # Ensuring that we do not send commands to the robot too fast
             if diff < self.frequency:
                 time.sleep(self.frequency - diff)
@@ -54,7 +54,7 @@ class MoveRobot:
         print("Action server started")
 
     def moveCallback(self, goal):
-        self.servCon.runTrajectory(goal)
+        self.servCon.runTrajectory(goal, self.move_server)
         self.move_server.set_succeeded(MoveRobotResult(True))
 
     def stopCallback(self, goal):

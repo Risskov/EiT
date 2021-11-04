@@ -20,7 +20,7 @@ if __name__ == "__main__":
     client_move.wait_for_result()
 
 
-    pose = [0.5154353428673626, -0.16885648388269845, -0.049974561539680856,
+    pose = [0.2154353428673626, -0.26885648388269845, -0.049974561539680856,
             -0.0011797094876681562, 3.1162457375630024, 0.038842380117300054]
     client_move.send_goal(MoveRobotGoal(pose=pose))
     client_move.wait_for_result()
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     pose = [0.5154353428673626, -0.26885648388269845, -0.049974561539680856,
             -0.0011797094876681562, 3.1162457375630024, 0.038842380117300054]
     client_move.send_goal(MoveRobotGoal(pose=pose))
-    time.sleep(2)
+    time.sleep(1)
 
     client_stop.send_goal(StopRobotGoal())
     client_stop.wait_for_result()

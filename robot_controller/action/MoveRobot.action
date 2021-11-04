@@ -5,4 +5,4 @@ float32[6] pose
 bool completed
 ---
 # Define a feedback message
-bool feedback
+float32[6] feedback
