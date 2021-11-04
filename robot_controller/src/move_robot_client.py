@@ -72,7 +72,7 @@ def toBaseFrame(point):
 
 if __name__ == "__main__":
     controller = Controller()
-    pose0 = [0.4, 0.5, 0.1, 1]
+    pose0 = [0.4, -0.6, 0.1, 1]
     pose1 = [0.4, 0.6, 0.1, 1]
     point0BF = toBaseFrame(pose0)
     point1BF = toBaseFrame(pose1)
