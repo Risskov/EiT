@@ -13,7 +13,7 @@ class ServoControl:
         self.control = controller
         self.receive = receiver
         self.stop = False
-        self.velocity = 0.2
+        self.velocity = 0.1
         self.acceleration = 0.5
         self.lookAheadTime = 0.1
         self.gain = 600
