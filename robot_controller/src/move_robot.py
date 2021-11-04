@@ -37,7 +37,7 @@ class ServoControl:
                 time.sleep(self.frequency - diff)
         self.control.servoStop()
 
-    def stopTrajectory(self, goal):
+    def stopTrajectory(self):
         self.stop = True  # Stopping the servo control when we are done
 
 class MoveRobot:
@@ -48,7 +48,7 @@ class MoveRobot:
         self.rtde_r = RTDEReceive("192.168.1.20")
         self.servCon = ServoControl(self.rtde_c, self.rtde_r)
         self.move_server = actionlib.SimpleActionServer("move_robot", MoveRobotAction, self.moveCallback, False)
-        self.stop_server = actionlib.SimpleActionServer("stop_robot", StopRobotAction, self.servCon.stopTrajectory, False)
+        self.stop_server = actionlib.SimpleActionServer("stop_robot", StopRobotAction, self.stopCallback, False)
         self.move_server.start()
         self.stop_server.start()
         print("Action server started")
@@ -57,7 +57,7 @@ class MoveRobot:
         self.servCon.runTrajectory(goal)
         self.move_server.set_succeeded(MoveRobotResult(True))
 
-    def stopCallback(self, goal):
+    def stopCallback(self):
         self.servCon.stopTrajectory()
         self.stop_server.set_succeeded(StopRobotResult(True))
 

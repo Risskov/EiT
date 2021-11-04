@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     client_stop.send_goal(StopRobotGoal())
     client_stop.wait_for_result()
-    client_move.wait_for_result()
+
     print(client_stop.get_result())
     print("done")
 '''
