@@ -31,7 +31,7 @@ class ServoControl:
             start_time = time.time()
 
             self.control.servoL(point, self.velocity, self.acceleration, self.frequency / 2, self.lookAheadTime, self.gain)
-            server.publish_feedback(MoveRobotFeedback(feedback=self.receive.getActualTCPPose()))
+            #server.publish_feedback(MoveRobotFeedback(feedback=self.receive.getActualTCPPose()))
             diff = time.time() - start_time  # Ensuring that we do not send commands to the robot too fast
             if diff < self.frequency:
                 time.sleep(self.frequency - diff)
@@ -42,7 +42,6 @@ class ServoControl:
 
 class MoveRobot:
     def __init__(self):
-
         #self.rtde_c = RTDEControl("192.168.1.20", RTDEControl.FLAG_USE_EXT_UR_CAP)
         self.rtde_c = RTDEControl("192.168.1.20")
         self.rtde_r = RTDEReceive("192.168.1.20")
