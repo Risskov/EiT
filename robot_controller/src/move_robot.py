@@ -6,9 +6,10 @@ from rtde_receive import RTDEReceiveInterface as RTDEReceive
 from robot_controller.msg import MoveRobotAction, MoveRobotResult, StopRobotAction, StopRobotResult
 
 class ServoControl:
-    def __init__(self, robot):
+    def __init__(self, controller, receiver):
         self.frequency = 1 / 500
-        self.robot = robot
+        self.control = controller
+        self.receive = receiver
         self.stop = False
         self.velocity = 0.2
         self.acceleration = 0.5
@@ -17,24 +18,24 @@ class ServoControl:
 
     def runTrajectory(self, goal):
         self.stop = False
-        current_pose = self.rtde_r.getActualTCPPose()
+        current_pose = self.receive.getActualTCPPose()
         trajectory = np.linspace(current_pose, goal.pose, 1000)
         pose = trajectory[0]  # Move the robot to the first pose in the trajectory
-        self.robot.moveL(pose)
+        self.control.moveL(pose)
 
         for point in trajectory:
             if self.stop:
                 break
             start_time = time.time()
 
-            self.robot.servoL(point, self.velocity, self.acceleration, self.frequency / 2, self.lookAheadTime, self.gain)
+            self.control.servoL(point, self.velocity, self.acceleration, self.frequency / 2, self.lookAheadTime, self.gain)
 
             diff = time.time() - start_time  # Ensuring that we do not send commands to the robot too fast
             if diff < self.frequency:
                 time.sleep(self.frequency - diff)
-        self.robot.servoStop()
+        self.control.servoStop()
 
-    def stopTrajectory(self):
+    def stopTrajectory(self, goal):
         self.stop = True  # Stopping the servo control when we are done
 
 class MoveRobot:
@@ -43,7 +44,7 @@ class MoveRobot:
         #self.rtde_c = RTDEControl("192.168.1.20", RTDEControl.FLAG_USE_EXT_UR_CAP)
         self.rtde_c = RTDEControl("192.168.1.20")
         self.rtde_r = RTDEReceive("192.168.1.20")
-        self.servCon = ServoControl(self.rtde_c)
+        self.servCon = ServoControl(self.rtde_c, self.rtde_r)
         self.move_server = actionlib.SimpleActionServer("move_robot", MoveRobotAction, self.moveCallback, False)
         self.stop_server = actionlib.SimpleActionServer("stop_robot", StopRobotAction, self.servCon.stopTrajectory, False)
         self.move_server.start()
