@@ -6,6 +6,8 @@ import time
 
 class Controller:
     def __init__(self):
+        self.states = ["PENDING", "ACTIVE", "PREEMPTED", "SUCCEEDED", "ABORTED",
+                       "REJECTED", "PREEMPTING", "RECALLING", "RECALLED", "LOST"]
         self.pose_reached = False
         rospy.init_node("move_robot_client")
         print("Starting client")
@@ -21,7 +23,7 @@ class Controller:
 
     def doneCallback(self, state, result):
         self.pose_reached = True
-        print(f"State {state} reached")
+        print(f"State {self.states[state]} reached")
 
     def waitForResult(self):
         while not self.pose_reached:
@@ -39,7 +41,7 @@ class Controller:
 
         pose = [0.5154353428673626, -0.26885648388269845, -0.049974561539680856,
                 -0.0011797094876681562, 3.1162457375630024, 0.038842380117300054]
-        self.client_move.send_goal(MoveRobotGoal(pose=pose), done_cb=callback)
+        self.client_move.send_goal(MoveRobotGoal(pose=pose), done_cb=self.doneCallback)
         time.sleep(1)
         self.client_stop.send_goal(StopRobotGoal())
         self.client_stop.wait_for_result()

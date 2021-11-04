@@ -2,7 +2,7 @@
 float32[6] pose
 ---
 # Define the result
-bool completed
+float32[6] result
 ---
 # Define a feedback message
 float32[6] feedback
