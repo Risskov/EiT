@@ -59,7 +59,7 @@ class MoveRobot:
 
     def stopCallback(self, goal):
         self.servCon.stopTrajectory()
-        self.stop_server.set_succeeded()
+        self.stop_server.set_succeeded(StopRobotResult(True))
 
     '''    
     def callback(self, goal):
