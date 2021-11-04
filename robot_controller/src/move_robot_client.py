@@ -3,6 +3,7 @@ import rospy
 import actionlib
 from robot_controller.msg import MoveRobotAction, MoveRobotGoal, StopRobotAction, StopRobotGoal
 import time
+import numpy as np
 
 class Controller:
     def __init__(self):
@@ -27,7 +28,8 @@ class Controller:
         print("Result: ", result)
 
     def feedbackCallback(self, feedback):
-        print("Force: ", feedback)
+        force = np.linalg.norm(feedback.force)
+        print("Force: ", force)
         #if feedback > 5:
         #    self.pose_reached = True
 
