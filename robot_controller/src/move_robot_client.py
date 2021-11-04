@@ -68,7 +68,7 @@ def toBaseFrame(point):
     t = np.asarray([[1, 0, 0, transM[0]], [0, 1, 0, transM[1]], [0, 0, 1, transM[2]], [0, 0, 0, 1]])
     t[0:3, 0:3] = r
     pose = t @ pointnp
-    return (pose[0:3]/pose[3]).tolist()+[0, 3.1415, 0]
+    return (pose[0:3]/pose[3]).tolist()+[0, -3.1415, 0]
 
 if __name__ == "__main__":
     controller = Controller()
