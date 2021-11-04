@@ -23,14 +23,14 @@ class ServoControl:
         current_pose = self.receive.getActualTCPPose()
         trajectory = np.linspace(current_pose, goal.pose, 1000)
         pose = trajectory[0]  # Move the robot to the first pose in the trajectory
-        #self.control.moveL(pose)
+        self.control.moveL(pose)
 
         for point in trajectory:
             if self.stop:
                 break
             start_time = time.time()
             print(point)
-            #self.control.servoL(point, self.velocity, self.acceleration, self.frequency / 2, self.lookAheadTime, self.gain)
+            self.control.servoL(point, self.velocity, self.acceleration, self.frequency / 2, self.lookAheadTime, self.gain)
             diff = time.time() - start_time  # Ensuring that we do not send commands to the robot too fast
             if diff < self.frequency:
                 time.sleep(self.frequency - diff)
