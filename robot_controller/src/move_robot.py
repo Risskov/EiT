@@ -15,13 +15,15 @@ class MoveRobot:
 
     def callback(self, goal):
         print(goal)
-        if goal[6] == 1:
-            self.rtde_c.stopJ()
-        elif goal[6] == 0:
-            self.rtde_c.moveL(goal[0:6], 0.25, 0.5, True)
-            self.server.set_succeeded(MoveRobotResult(True))
-            #if goal failed
-            #self.server.set_succeeded(MoveRobotResult(False))
+        if goal.stop:
+            self.rtde_c.stopL()
+        else:
+            done = self.rtde_c.moveL(goal.pose, 0.25, 0.5, True)
+            while not done: pass
+
+        self.server.set_succeeded(MoveRobotResult(True))
+        #if goal failed
+        #self.server.set_succeeded(MoveRobotResult(False))
 
 if __name__ == "__main__":
     rospy.init_node('move_robot')

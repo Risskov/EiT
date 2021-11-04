@@ -1,5 +1,6 @@
 # Define the goal
-float32[7] pose
+float32[6] pose
+bool stop
 ---
 # Define the result
 bool completed
