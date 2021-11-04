@@ -31,10 +31,12 @@ class ServoControl:
             start_time = time.time()
 
             self.control.servoL(point, self.velocity, self.acceleration, self.frequency / 2, self.lookAheadTime, self.gain)
-            #server.publish_feedback(MoveRobotFeedback(feedback=self.receive.getActualTCPPose()))
             diff = time.time() - start_time  # Ensuring that we do not send commands to the robot too fast
             if diff < self.frequency:
                 time.sleep(self.frequency - diff)
+
+            server.publish_feedback(MoveRobotFeedback(feedback=self.receive.getActualTPCForce()))
+
         self.control.servoStop()
         server.set_succeeded(MoveRobotResult(self.receive.getActualTCPPose()))
 

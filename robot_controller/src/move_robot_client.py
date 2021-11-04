@@ -18,12 +18,18 @@ class Controller:
         print("Server found")
 
     def sendPose(self, pose):
-        self.client_move.send_goal(MoveRobotGoal(pose=pose), done_cb=self.doneCallback)
+        self.client_move.send_goal(MoveRobotGoal(pose=pose), done_cb=self.doneCallback, feedback_cb=self.feedbackCallback)
         self.waitForResult()
 
     def doneCallback(self, state, result):
         self.pose_reached = True
         print(f"State {self.states[state]} reached")
+        print("Result: ", result)
+
+    def feedbackCallback(self, feedback):
+        print("Force: ", feedback)
+        #if feedback > 5:
+        #    self.pose_reached = True
 
     def waitForResult(self):
         while not self.pose_reached:

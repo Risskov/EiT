@@ -5,4 +5,4 @@ float32[6] pose
 float32[6] result
 ---
 # Define a feedback message
-float32[6] feedback
+float32[] feedback
