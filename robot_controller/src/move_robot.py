@@ -3,9 +3,7 @@ import rospy
 import actionlib
 from rtde_control import RTDEControlInterface as RTDEControl
 from rtde_receive import RTDEReceiveInterface as RTDEReceive
-from robot_controller.msg import MoveRobotAction, MoveRobotResult
-from std_msgs.msg import Bool
-
+from robot_controller.msg import MoveRobotAction, MoveRobotResult, StopRobotAction, StopRobotResult
 
 class ServoControl:
     def __init__(self, robot):
@@ -19,27 +17,25 @@ class ServoControl:
 
     def runTrajectory(self, goal):
         self.stop = False
-        currentPose = self.rtde_r.getActualTCPPose()
-        trajectory = np.linspace(currentPose, goal.pose, 1000)
+        current_pose = self.rtde_r.getActualTCPPose()
+        trajectory = np.linspace(current_pose, goal.pose, 1000)
         pose = trajectory[0]  # Move the robot to the first pose in the trajectory
         self.robot.moveL(pose)
 
         for point in trajectory:
             if self.stop:
                 break
-            startTime = time.time()
+            start_time = time.time()
 
             self.robot.servoL(point, self.velocity, self.acceleration, self.frequency / 2, self.lookAheadTime, self.gain)
 
-            diff = time.time() - startTime  # Ensuring that we do not send commands to the robot too fast
-            if (diff < self.frequency):
+            diff = time.time() - start_time  # Ensuring that we do not send commands to the robot too fast
+            if diff < self.frequency:
                 time.sleep(self.frequency - diff)
         self.robot.servoStop()
-        self.move_server.set_succeeded(MoveRobotResult(True))
 
     def stopTrajectory(self):
         self.stop = True  # Stopping the servo control when we are done
-        self.move_server.set_succeeded()
 
 class MoveRobot:
     def __init__(self):
@@ -48,15 +44,18 @@ class MoveRobot:
         self.rtde_c = RTDEControl("192.168.1.20")
         self.rtde_r = RTDEReceive("192.168.1.20")
         self.servCon = ServoControl(self.rtde_c)
-        self.move_server = actionlib.SimpleActionServer("move_robot", MoveRobotAction, self.servCon.runTrajectory, False)
-        self.stop_server = actionlib.SimpleActionServer("stop_robot", Bool, self.servCon.stopTrajectory, False)
+        self.move_server = actionlib.SimpleActionServer("move_robot", MoveRobotAction, self.moveCallback, False)
+        self.stop_server = actionlib.SimpleActionServer("stop_robot", StopRobotAction, self.servCon.stopTrajectory, False)
         self.server.start()
         print("Action server started")
 
     def moveCallback(self, goal):
-        currentPose = self.rtde_r.getActualTCPPose()
-        trajectory = np.linspace(currentPose, goal.pose, 1000)
-        self.servCon.runTrajectory(trajectory, 0.25, 0.5)
+        self.servCon.runTrajectory(goal)
+        self.move_server.set_succeeded(MoveRobotResult(True))
+
+    def stopCallback(self, goal):
+        self.servCon.stopTrajectory()
+        self.stop_server.set_succeeded()
 
     '''    
     def callback(self, goal):
