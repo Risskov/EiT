@@ -46,7 +46,8 @@ class MoveRobot:
         self.servCon = ServoControl(self.rtde_c)
         self.move_server = actionlib.SimpleActionServer("move_robot", MoveRobotAction, self.moveCallback, False)
         self.stop_server = actionlib.SimpleActionServer("stop_robot", StopRobotAction, self.servCon.stopTrajectory, False)
-        self.server.start()
+        self.move_server.start()
+        self.stop_server.start()
         print("Action server started")
 
     def moveCallback(self, goal):
