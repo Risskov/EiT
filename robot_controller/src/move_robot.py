@@ -12,13 +12,12 @@ class ServoControl:
         self.frequency = 1 / 500
         self.robot = robot
         self.stop = False
-        self.velocity = 0.5
+        self.velocity = 0.2
         self.acceleration = 0.5
         self.lookAheadTime = 0.1
         self.gain = 600
 
     def runTrajectory(self, goal):
-
         self.stop = False
         currentPose = self.rtde_r.getActualTCPPose()
         trajectory = np.linspace(currentPose, goal.pose, 1000)
@@ -26,7 +25,8 @@ class ServoControl:
         self.robot.moveL(pose)
 
         for point in trajectory:
-            if self.stop: break
+            if self.stop:
+                break
             startTime = time.time()
 
             self.robot.servoL(point, self.velocity, self.acceleration, self.frequency / 2, self.lookAheadTime, self.gain)
@@ -35,9 +35,11 @@ class ServoControl:
             if (diff < self.frequency):
                 time.sleep(self.frequency - diff)
         self.robot.servoStop()
+        self.move_server.set_succeeded(MoveRobotResult(True))
 
     def stopTrajectory(self):
         self.stop = True  # Stopping the servo control when we are done
+        self.move_server.set_succeeded()
 
 class MoveRobot:
     def __init__(self):
