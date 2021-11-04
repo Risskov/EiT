@@ -35,7 +35,7 @@ class ServoControl:
             if diff < self.frequency:
                 time.sleep(self.frequency - diff)
 
-            server.publish_feedback(MoveRobotFeedback(feedback=self.receive.getActualTCPForce()))
+            server.publish_feedback(MoveRobotFeedback(force=self.receive.getActualTCPForce()))
 
         self.control.servoStop()
         server.set_succeeded(MoveRobotResult(self.receive.getActualTCPPose()))
