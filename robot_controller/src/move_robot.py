@@ -36,7 +36,7 @@ class ServoControl:
             if diff < self.frequency:
                 time.sleep(self.frequency - diff)
         self.control.servoStop()
-        self.move_server.set_succeeded(MoveRobotResult(self.receive.getActualTCPPose()))
+        server.set_succeeded(MoveRobotResult(self.receive.getActualTCPPose()))
 
     def stopTrajectory(self):
         self.stop = True  # Stopping the servo control when we are done
