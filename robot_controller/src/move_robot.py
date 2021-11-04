@@ -21,7 +21,7 @@ class ServoControl:
     def runTrajectory(self, goal, server):
         self.stop = False
         current_pose = self.receive.getActualTCPPose()[0:3]+[0, 0, 0]
-        trajectory = np.linspace(current_pose, goal.pose, 1000)
+        trajectory = np.linspace(current_pose, goal.pose, 10000)
         pose = trajectory[0]  # Move the robot to the first pose in the trajectory
         self.control.moveL(pose)
         print(pose)
