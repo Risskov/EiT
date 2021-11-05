@@ -31,7 +31,7 @@ class Controller:
     def feedbackCallback(self, feedback):
         force = np.linalg.norm(feedback.force)
         print("Force: ", force)
-        if force > 7:
+        if force > 7.0:
             self.pose_reached = True
 
     def waitForResult(self):
@@ -40,22 +40,6 @@ class Controller:
         self.pose_reached = False
 
     def testTrajectory(self, trajectory):
-        '''
-        pose = [0.5154353428673626, -0.26885648388269845, -0.049974561539680856,
-                -0.0011797094876681562, 3.1162457375630024, 0.038842380117300054]
-        self.sendPose(pose)
-
-        pose = [0.2154353428673626, -0.26885648388269845, -0.049974561539680856,
-                -0.0011797094876681562, 3.1162457375630024, 0.038842380117300054]
-        self.sendPose(pose)
-
-        pose = [0.5154353428673626, -0.26885648388269845, -0.049974561539680856,
-                -0.0011797094876681562, 3.1162457375630024, 0.038842380117300054]
-        self.client_move.send_goal(MoveRobotGoal(pose=pose), done_cb=self.doneCallback)
-        time.sleep(1)
-        self.client_stop.send_goal(StopRobotGoal())
-        self.client_stop.wait_for_result()
-        '''
         for traj in trajectory:
             self.sendPose(traj)
         #print(self.client_stop.get_result())
@@ -77,10 +61,6 @@ if __name__ == "__main__":
     point0BF = toBaseFrame(pose0)
     point1BF = toBaseFrame(pose1)
     print(point1BF)
-    #pose0 = [0.5154353428673626, -0.26885648388269845, -0.049974561539680856,
-    #         -0.0011797094876681562, 3.1162457375630024, 0.038842380117300054]
-    #pose1 = [0.1154353428673626, -0.26885648388269845, -0.049974561539680856,
-    #         -0.0011797094876681562, 3.1162457375630024, 0.038842380117300054]
     traject = [point1BF, point0BF, point1BF, point0BF, point1BF]
     controller.testTrajectory(traject)
 
