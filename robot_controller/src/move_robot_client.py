@@ -32,7 +32,8 @@ class Controller:
         force = np.linalg.norm(feedback.force)
         print("Force: ", force)
         if force > 7.0:
-            self.pose_reached = True
+            self.client_stop.send_goal(StopRobotGoal())
+            #self.pose_reached = True
 
     def waitForResult(self):
         while not self.pose_reached:
@@ -41,9 +42,9 @@ class Controller:
 
     def testTrajectory(self, trajectory):
         for traj in trajectory:
+            print("Sending pose")
             self.sendPose(traj)
-        #print(self.client_stop.get_result())
-        print("done")
+        print("Trajectory complete")
 
 def toBaseFrame(point):
     pointnp = np.asarray(point)
