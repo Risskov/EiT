@@ -4,16 +4,18 @@ import cv2
 import rospy
 from sensor_msgs.msg import Image
 from image_service.srv import ImageService, ImageServiceResponse
+import time
 
 class ImageServer:
     def __init__(self):
         self.bridge = CvBridge()
-        self.cap = cv2.VideoCapture(0)
+        #self.cap = cv2.VideoCapture(0)
         self.image_service_server()
 
     def get_image(self, req):
         print("Sending image")
         cap = cv2.VideoCapture(0)
+        time.sleep(0.1)
         _, frame = cap.read()
         image_message = self.bridge.cv2_to_imgmsg(frame, encoding='passthrough')
         return ImageServiceResponse(image_message)
