@@ -13,7 +13,8 @@ class ImageServer:
 
     def get_image(self, req):
         print("Sending image")
-        _, frame = self.cap.read()
+        cap = cv2.VideoCapture(0)
+        _, frame = cap.read()
         image_message = self.bridge.cv2_to_imgmsg(frame, encoding='passthrough')
         return ImageServiceResponse(image_message)
 
