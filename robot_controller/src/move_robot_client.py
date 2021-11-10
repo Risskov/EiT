@@ -47,7 +47,7 @@ class Controller:
         T = np.asarray([[1, 0, 0, transM[0]], [0, 1, 0, transM[1]], [0, 0, 1, transM[2]], [0, 0, 0, 1]])
         T[0:3, 0:3] = r
         pose = T @ point_a
-        return (pose[0:3]/pose[3]).tolist()+[0, 0, 0]
+        return (pose[0:3]/pose[3]).tolist()+[0, 3.142, 0]
 
     def testTrajectory(self, trajectory):
         for point in trajectory:
