@@ -41,6 +41,14 @@ class ServoControl:
         self.control.servoStop()
         server.set_succeeded(MoveRobotResult(self.receive.getActualTCPPose()))
 
+    def move(self, goal, server):
+        self.control.moveL(goal, self.velocity, self.acceleration, True)
+        while self.receive.getAsyncOperationProgress() >= 0 and not self.stop:
+            server.publish_feedback(MoveRobotFeedback(force=self.receive.getActualTCPForce()))
+        if self.stop:
+            self.control.stopL()
+        server.set_succeeded(MoveRobotResult(self.receive.getActualTCPPose()))
+
     def stopTrajectory(self):
         self.stop = True  # Stopping the servo control when we are done
 
@@ -57,7 +65,8 @@ class MoveRobot:
         print("Action server started")
 
     def moveCallback(self, goal):
-        self.servCon.runTrajectory(goal, self.move_server)
+        #self.servCon.runTrajectory(goal, self.move_server)
+        self.move(goal, self.move_server)
 
     def stopCallback(self, goal):
         self.servCon.stopTrajectory()
