@@ -66,7 +66,7 @@ class MoveRobot:
 
     def moveCallback(self, goal):
         #self.servCon.runTrajectory(goal, self.move_server)
-        self.move(goal, self.move_server)
+        self.servCon.move(goal, self.move_server)
 
     def stopCallback(self, goal):
         self.servCon.stopTrajectory()
