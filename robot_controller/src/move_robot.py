@@ -26,6 +26,7 @@ class ServoControl:
         pose = trajectory[0]  # Move the robot to the first pose in the trajectory
         self.control.moveL(pose)
         print(pose)
+        self.control.zeroFtSensor()
         for point in trajectory:
             if self.stop:
                 break
