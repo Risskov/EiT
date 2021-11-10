@@ -17,6 +17,7 @@ class ServoControl:
         self.acceleration = 0.3
         self.lookAheadTime = 0.1
         self.gain = 600
+        # send vel and others in goal message
 
     def runTrajectory(self, goal, server):
         self.stop = False
@@ -29,7 +30,6 @@ class ServoControl:
             if self.stop:
                 break
             start_time = time.time()
-            #print(point)
             self.control.servoL(point, self.velocity, self.acceleration, self.frequency / 2, self.lookAheadTime, self.gain)
             diff = time.time() - start_time  # Ensuring that we do not send commands to the robot too fast
             if diff < self.frequency:

@@ -11,8 +11,8 @@ class Controller:
         self.states = ["PENDING", "ACTIVE", "PREEMPTED", "SUCCEEDED", "ABORTED",
                        "REJECTED", "PREEMPTING", "RECALLING", "RECALLED", "LOST"]
         self.pose_reached = False
-        rospy.init_node("move_robot_client")
-        print("Starting client")
+        rospy.init_node("controller")
+        print("Starting Controller")
         self.client_move = actionlib.SimpleActionClient("move_robot", MoveRobotAction)
         self.client_move.wait_for_server()
         self.client_stop = actionlib.SimpleActionClient("stop_robot", StopRobotAction)
@@ -40,28 +40,24 @@ class Controller:
             time.sleep(0.01)
         self.pose_reached = False
 
-    def testTrajectory(self, trajectory):
-        for traj in trajectory:
-            print("Sending pose")
-            self.sendPose(traj)
-        print("Trajectory complete")
+    def toBaseFrame(self, point):
+        point_a = np.asarray(point)
+        transM = [0.13054, -0.24411, -0.03447, 0., 0., -1.17658]
+        r = R.from_euler("xyz", transM[3:]).as_matrix()
+        T = np.asarray([[1, 0, 0, transM[0]], [0, 1, 0, transM[1]], [0, 0, 1, transM[2]], [0, 0, 0, 1]])
+        T[0:3, 0:3] = r
+        pose = T @ point_a
+        return (pose[0:3]/pose[3]).tolist()+[0, 0, 0]
 
-def toBaseFrame(point):
-    pointnp = np.asarray(point)
-    transM = [0.13054, -0.24411, -0.03447, 0., 0., -1.17658]
-    r = R.from_euler("xyz", transM[3:]).as_matrix()
-    t = np.asarray([[1, 0, 0, transM[0]], [0, 1, 0, transM[1]], [0, 0, 1, transM[2]], [0, 0, 0, 1]])
-    t[0:3, 0:3] = r
-    pose = t @ pointnp
-    return (pose[0:3]/pose[3]).tolist()+[0, 0, 0]
+    def testTrajectory(self, trajectory):
+        for point in trajectory:
+            print("Sending pose")
+            self.sendPose(self.toBaseFrame(point))
+        print("Trajectory complete")
 
 if __name__ == "__main__":
     controller = Controller()
     pose0 = [0.4, -0.6, 0.1, 1]
     pose1 = [0.4, 0.6, 0.1, 1]
-    point0BF = toBaseFrame(pose0)
-    point1BF = toBaseFrame(pose1)
-    print(point1BF)
-    traject = [point1BF, point0BF, point1BF, point0BF, point1BF]
+    traject = [pose1, pose0, pose1, pose0, pose1]
     controller.testTrajectory(traject)
-
