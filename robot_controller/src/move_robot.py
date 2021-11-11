@@ -63,6 +63,7 @@ class MoveRobot:
         self.move_server.start()
         self.stop_server.start()
         print("Action server started")
+        print(self.rtde_c.isProgramRunning())
 
     def moveCallback(self, goal):
         #self.servCon.runTrajectory(goal, self.move_server)
