@@ -56,6 +56,7 @@ class ServoControl:
     def moveTest(self, goal, server):
         self.stop = False
         self.done = self.control.moveL(goal.pose, self.velocity, self.acceleration, True)
+        print(self.done)
         while not self.done and not self.stop:
             server.publish_feedback(MoveRobotFeedback(force=self.receive.getActualTCPForce()))
         if self.stop:
