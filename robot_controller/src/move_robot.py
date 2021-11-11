@@ -18,6 +18,7 @@ class ServoControl:
         self.lookAheadTime = 0.1
         self.gain = 600
         # send vel and others in goal message
+        self.done = False
 
     def runTrajectory(self, goal, server):
         self.stop = False
@@ -52,6 +53,15 @@ class ServoControl:
     def stopTrajectory(self):
         self.stop = True  # Stopping the servo control when we are done
 
+    def moveTest(self, goal, server):
+        self.stop = False
+        self.done = self.control.moveL(goal.pose, self.velocity, self.acceleration, True)
+        while not self.done and not self.stop:
+            server.publish_feedback(MoveRobotFeedback(force=self.receive.getActualTCPForce()))
+        if self.stop:
+            self.control.stopL()
+        server.set_succeeded(MoveRobotResult(self.receive.getActualTCPPose()))
+
 class MoveRobot:
     def __init__(self):
         #self.rtde_c = RTDEControl("192.168.1.20", RTDEControl.FLAG_USE_EXT_UR_CAP)
@@ -63,15 +73,17 @@ class MoveRobot:
         self.move_server.start()
         self.stop_server.start()
         print("Action server started")
-        print(self.rtde_c.isProgramRunning())
 
     def moveCallback(self, goal):
         #self.servCon.runTrajectory(goal, self.move_server)
-        self.servCon.move(goal, self.move_server)
+        #self.servCon.move(goal, self.move_server)
+        self.servCon.moveTest(goal, self.move_server)
 
     def stopCallback(self, goal):
         self.servCon.stopTrajectory()
         self.stop_server.set_succeeded(StopRobotResult(True))
+
+
 
 if __name__ == "__main__":
     rospy.init_node('move_robot')
