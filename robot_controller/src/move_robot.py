@@ -44,8 +44,8 @@ class ServoControl:
 
     def move(self, goal, server):
         self.control.moveL(goal.pose, self.velocity, self.acceleration, True)
-        while self.receiver.getAsyncOperationProgress() >= 0 and not self.stop:
-            print("Progress: ", self.receiver.getAsyncOperationProgress())
+        while self.receive.getAsyncOperationProgress() >= 0 and not self.stop:
+            print("Progress: ", self.receive.getAsyncOperationProgress())
             server.publish_feedback(MoveRobotFeedback(force=self.receive.getActualTCPForce()))
         if self.stop:
             self.control.stopL()
