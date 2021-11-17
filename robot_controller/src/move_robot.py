@@ -6,6 +6,7 @@ import actionlib
 from rtde_control import RTDEControlInterface as RTDEControl
 from rtde_receive import RTDEReceiveInterface as RTDEReceive
 from robot_controller.msg import MoveRobotAction, MoveRobotResult, MoveRobotFeedback, StopRobotAction, StopRobotResult
+import signal
 
 class ServoControl:
     def __init__(self, controller, receiver):
@@ -97,7 +98,14 @@ class MoveRobot:
         self.stop = True
         self.stop_server.set_succeeded(StopRobotResult(True))
 
+    def exitGracefully(self, signum, frame):
+        self.rtde_c.stopScript()
+        self.rtde_c.disconnect()
+        self.rtde_r.disconnect()
+        exit("Close program")
+
 if __name__ == "__main__":
     rospy.init_node('move_robot')
     mr = MoveRobot()
+    signal.signal(signal.SIGINT, mr.exitGracefully)
     rospy.spin()
