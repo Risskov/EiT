@@ -43,8 +43,9 @@ class ServoControl:
         server.set_succeeded(MoveRobotResult(self.receive.getActualTCPPose()))
 
     def move(self, goal, server):
-        m = self.control.moveL(goal.pose, self.velocity, self.acceleration, True)
-        while m.getAsyncOperationProgress() >= 0 and not self.stop:
+        self.control.moveL(goal.pose, self.velocity, self.acceleration, True)
+        while self.rtde_r.getAsyncOperationProgress() >= 0 and not self.stop:
+            print("Progress: ", self.rtde_r.getAsyncOperationProgress())
             server.publish_feedback(MoveRobotFeedback(force=self.receive.getActualTCPForce()))
         if self.stop:
             self.control.stopL()
@@ -77,14 +78,12 @@ class MoveRobot:
 
     def moveCallback(self, goal):
         #self.servCon.runTrajectory(goal, self.move_server)
-        #self.servCon.move(goal, self.move_server)
-        self.servCon.moveTest(goal, self.move_server)
+        self.servCon.move(goal, self.move_server)
+        #self.servCon.moveTest(goal, self.move_server)
 
     def stopCallback(self, goal):
         self.servCon.stopTrajectory()
         self.stop_server.set_succeeded(StopRobotResult(True))
-
-
 
 if __name__ == "__main__":
     rospy.init_node('move_robot')

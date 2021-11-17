@@ -31,7 +31,7 @@ class Controller:
     def feedbackCallback(self, feedback):
         force = np.linalg.norm(feedback.force)
         print("Force: ", force)
-        if force > 5.0:
+        if force > 25.0:
             self.client_stop.send_goal(StopRobotGoal())
             #self.pose_reached = True
 
@@ -57,7 +57,7 @@ class Controller:
 
 if __name__ == "__main__":
     controller = Controller()
-    pose0 = [0.4, 0.1, 0.1, 1]
+    pose0 = [0.4, 0.3, 0.1, 1]
     pose1 = [0.4, 0.6, 0.1, 1]
-    traject = [pose1, pose0, pose1, pose0, pose1]
+    traject = [pose1, pose0]
     controller.testTrajectory(traject)
