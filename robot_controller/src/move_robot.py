@@ -43,25 +43,29 @@ class ServoControl:
         server.set_succeeded(MoveRobotResult(self.receive.getActualTCPPose()))
 
     def move(self, goal, server):
+        print("First: ", self.receive.getAsyncOperationProgress())
         self.control.moveL(goal.pose, self.velocity, self.acceleration, True)
-        while self.receive.getAsyncOperationProgress() >= 0 and not self.stop:
+        print("Move done?")
+        #while self.receive.getAsyncOperationProgress() >= 0 and not self.stop:
+        while not self.stop:
             print("Progress: ", self.receive.getAsyncOperationProgress())
             server.publish_feedback(MoveRobotFeedback(force=self.receive.getActualTCPForce()))
         if self.stop:
-            self.control.stopL()
+            self.control.stopL(0.5)
         server.set_succeeded(MoveRobotResult(self.receive.getActualTCPPose()))
 
     def stopTrajectory(self):
         self.stop = True  # Stopping the servo control when we are done
 
     def moveTest(self, goal, server):
+        print("Start move")
         self.stop = False
-        self.done = self.control.moveL(goal.pose, self.velocity, self.acceleration, True)
-        print(self.done)
-        while not self.done and not self.stop:
+        self.control.moveL(goal.pose, self.velocity, self.acceleration, True)
+        print("Move done?")
+        while not self.control.isSteady() and not self.stop:
             server.publish_feedback(MoveRobotFeedback(force=self.receive.getActualTCPForce()))
         if self.stop:
-            self.control.stopL()
+            self.control.stopL(0.5)
         server.set_succeeded(MoveRobotResult(self.receive.getActualTCPPose()))
 
 class MoveRobot:
@@ -75,11 +79,12 @@ class MoveRobot:
         self.move_server.start()
         self.stop_server.start()
         print("Action server started")
+        #print("Status: ", self.rtde_r.getAsyncOperationProgress())
 
     def moveCallback(self, goal):
         #self.servCon.runTrajectory(goal, self.move_server)
-        self.servCon.move(goal, self.move_server)
-        #self.servCon.moveTest(goal, self.move_server)
+        #self.servCon.move(goal, self.move_server)
+        self.servCon.moveTest(goal, self.move_server)
 
     def stopCallback(self, goal):
         self.servCon.stopTrajectory()
