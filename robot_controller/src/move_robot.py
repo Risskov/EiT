@@ -78,16 +78,23 @@ class MoveRobot:
         self.stop_server = actionlib.SimpleActionServer("stop_robot", StopRobotAction, self.stopCallback, False)
         self.move_server.start()
         self.stop_server.start()
+        self.stop = False
+        self.velocity = 0.1
+        self.acceleration = 0.3
         print("Action server started")
-        #print("Status: ", self.rtde_r.getAsyncOperationProgress())
 
     def moveCallback(self, goal):
-        #self.servCon.runTrajectory(goal, self.move_server)
-        #self.servCon.move(goal, self.move_server)
-        self.servCon.moveTest(goal, self.move_server)
+        self.stop = False
+        self.rtde_c.moveL(goal.pose, self.velocity, self.acceleration, True)
+        while not self.rtde_c.isSteady() and not self.stop:
+            self.move_server.publish_feedback(MoveRobotFeedback(force=self.rtde_r.getActualTCPForce()))
+        if self.stop:
+            self.rtde_c.stopL(0.5)
+            print("Robot stopped")
+        self.move_server.set_succeeded(MoveRobotResult(self.rtde_r.getActualTCPPose()))
 
     def stopCallback(self, goal):
-        self.servCon.stopTrajectory()
+        self.stop = True
         self.stop_server.set_succeeded(StopRobotResult(True))
 
 if __name__ == "__main__":
