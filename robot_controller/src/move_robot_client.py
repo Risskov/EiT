@@ -8,6 +8,8 @@ from scipy.spatial.transform import Rotation as R
 
 from robot_controller import Segmentation_WithRW as sw
 from robot_controller import pathplanning as pp
+from tf2_msgs.msg import TFMessage
+from std_msgs.msg import Float64MultiArray
 
 class Controller:
     def __init__(self):
@@ -24,9 +26,26 @@ class Controller:
         self.forcehistory = []
         self.runningMean = 0
         print("Server found")
+        self.ID = 0
+        self.transform = np.eye(4)
+        self.force = []
+        self.forces = []
+        self.poses = []
+        self.forcesAndPoses = []
+        rospy.Subscriber("tf", TFMessage, self.savePoseAndForce)
+        rospy.Subscriber("force", Float64MultiArray, self.updateForce)
+
+    def updateForce(self, data):
+        self.force = data.data
+
+    def savePoseAndForce(self, data):
+        self.forces.append(self.force)
+        translation = data.transforms[0].transform.translation
+        self.poses.append([translation.x, translation.y, translation.z])
 
     def sendPose(self, pose):
         self.client_move.send_goal(MoveRobotGoal(pose=pose), done_cb=self.doneCallback, feedback_cb=self.feedbackCallback)
+        self.client_move.send_goal(MoveRobotGoal(pose=pose), done_cb=self.doneCallback)
         self.waitForResult()
 
     def doneCallback(self, state, result):
@@ -35,6 +54,8 @@ class Controller:
         print("Result: ", result)
 
     def feedbackCallback(self, feedback):
+        self.force = feedback.force
+        '''
         force = np.linalg.norm(feedback.force[0:2])
         self.runningMean = self.runningMean*0.8+force*0.2
 
@@ -48,7 +69,7 @@ class Controller:
             self.timeSinceStop = 0
             self.pose_reached = True
         self.timeSinceStop += 1
-
+        '''
     def waitForResult(self):
         while not self.pose_reached:
             time.sleep(0.01)
@@ -76,38 +97,56 @@ class Controller:
         pose = np.linalg.inv(T) @ point_a
         return (pose[0:3] / pose[3]).tolist()  # +[0, 0, 0]
 
-    def runTrajectory(self, trajectory):
-        for point in trajectory:
+    def runTrajectory(self, trajectory, contacts):
+        self.forcesAndPoses = []
+        for point, contact in zip(trajectory, contacts):
             print("Sending pose")
             #self.sendPose(self.toBaseFrame(point))
             self.sendPose(self.toBaseFrame(point)+[0,0,0])
+            self.forcesAndPoses.append([self.forces, self.poses, contact])
+            self.forces = []
+            self.poses = []
         print("Trajectory complete")
 
 if __name__ == "__main__":
     controller = Controller()
-    init_point = [0.200, 0.300, 0.600]
-    controller.runTrajectory([init_point])
+    init_point = [0.000, 0.600, 0.600]
+    controller.runTrajectory([init_point], [False])
     #print("Init base: ", controller.toBaseFrame(init_point))
     #exit()
     seg = sw.Segmentation()
     points = seg.run()
 
-    for i , point in enumerate(points):
-        points[i] = controller.toTableFrame(point)
-
+    for i , p in enumerate(points):
+        points[i] = [p[0]-0.200, p[1]+0.300, p[2]] #controller.toTableFrame(point)
 
     print("Points relative to table ", points)
     #radius = 0.017
     #points = np.asarray([[0.100-radius, 0.290-radius, 0.02], [0.100-radius, 0.500+radius, 0.02], [0.320+radius, 0.500+radius, 0.02], [0.320+radius, 0.290-radius, 0.02]])
-    pathPlaner = pp.sidePathPlaner(points, resolution=0.05, penDist=0.01)
+    #pathPlaner = pp.sidePathPlaner(points, resolution=0.05, penDist=0.01)
 
-    pathPlaner.plot2D()
-    traject = pathPlaner.path3D.tolist()
-    topPlaner = pp.probePathTop(points, zOffset=0.05, intRes=[0.05, 0.05], penDist=0.01, toolOffset=0.05)
+    #pathPlaner.plot2D()
+    #traject = pathPlaner.path3D.tolist()
+    topPlaner = pp.probePathTop(points, zOffset=0.05, intRes=[0.025, 0.025], penDist=0.01, toolOffset=0.025)
     #topPlaner.plot()
     traject2 = topPlaner.path.tolist()
-    print(traject)
 
-    controller.runTrajectory(traject)
-    controller.runTrajectory(traject2)
-    controller .runTrajectory([init_point])
+
+    #print(traject)
+
+    #controller.runTrajectory(traject)
+    #controller.runTrajectory(traject2[25:45], topPlaner.enableContactDetection)
+    controller.runTrajectory(traject2, topPlaner.enableContactDetection)
+    with open("/home/andreas/coppelia_ws/src/testing/data.txt", "w") as f:
+        for ele in controller.forcesAndPoses:
+            n_dataPoints = len(ele[0])
+            for i in range(n_dataPoints):
+                data = str(ele[0][i])+","+str(ele[1][i])+","+str(ele[2])
+                data = data.replace("(", "")
+                data = data.replace(")", "")
+                data = data.replace("[", "")
+                data = data.replace("]", "")
+                data = data.replace("False", "0")
+                data = data.replace("True", "1")
+                f.write(f"{data}\n")
+    #controller.runTrajectory([init_point])
