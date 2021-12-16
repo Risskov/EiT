@@ -24,8 +24,8 @@ class MoveRobot:
         self.move_server.start()
         self.stop_server.start()
         self.stop = False
-        self.velocity = 0.1
-        self.acceleration = 0.5
+        self.velocity = 1.0
+        self.acceleration = 1.0
         self.rtde_c.zeroFtSensor()
         print("Action server started")
         self.pub = Thread(target=self.publishTfAndForce)

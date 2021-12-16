@@ -39,9 +39,10 @@ class Controller:
         self.force = data.data
 
     def savePoseAndForce(self, data):
-        self.forces.append(self.force)
-        translation = data.transforms[0].transform.translation
-        self.poses.append([translation.x, translation.y, translation.z])
+        pass
+        #self.forces.append(self.force)
+        #translation = data.transforms[0].transform.translation
+        #self.poses.append([translation.x, translation.y, translation.z])
 
     def sendPose(self, pose):
         self.client_move.send_goal(MoveRobotGoal(pose=pose), done_cb=self.doneCallback, feedback_cb=self.feedbackCallback)

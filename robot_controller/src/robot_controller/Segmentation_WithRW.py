@@ -6,6 +6,7 @@ import rospy
 from sklearn import preprocessing
 import math
 import scipy
+import os
 
 from image_service.srv import ImageService
 from robot_controller import utilities as utils
@@ -48,9 +49,47 @@ class Segmentation():
             image_message = self.proxy().img
             return cv2.cvtColor(
                 np.frombuffer(image_message.data, dtype=np.uint8).reshape(image_message.height, image_message.width,
-                                                                          -1), cv2.COLOR_BGR2HSV)
+                                                                          -1), cv2.COLOR_BGR2RGB)
         except rospy.ServiceException as e:
             raise ValueError(e)
+
+    def backgroundSegmenter(self):
+        backSub = cv2.createBackgroundSubtractorMOG2()
+        # backSub = cv.createBackgroundSubtractorKNN()
+        # capture = cv.VideoCapture(cv.samples.findFileOrKeep("no_object_cloth/"))
+        # capture2 = cv.VideoCapture(cv.samples.findFileOrKeep("square_cloth/"))
+
+        for i in os.listdir("/home/andreas/no_object_no_cloth/"):
+            frame = cv2.imread("/home/andreas/no_object_no_cloth/" + i)
+            # frame = cv.cvtColor(frame,cv.COLOR_BGR2RGB)
+            fgMask = backSub.apply(frame)
+
+            # cv.rectangle(frame, (10, 2), (100,20), (255,255,255), -1)
+            # cv.putText(frame, str(capture.get(cv.CAP_PROP_POS_FRAMES)), (15, 15),
+            #           cv.FONT_HERSHEY_SIMPLEX, 0.5 , (0,0,0))
+
+            # cv.imshow('Frame', frame)
+            # cv.imshow('FG Mask', fgMask)
+            #
+            # keyboard = cv.waitKey(200)
+            # if keyboard == 'q' or keyboard == 27:
+            #    break
+        return backSub
+
+    def segment(self, backSub, image):
+        # frame = cv.cvtColor(frame,cv.COLOR_BGR2RGB)
+        fgMask = 0
+        fgMask = backSub.apply(image, fgMask, 0)
+
+        # cv.rectangle(frame, (10, 2), (100,20), (255,255,255), -1)
+        # cv.putText(frame, str(capture.get(cv.CAP_PROP_POS_FRAMES)), (15, 15),
+        #           cv.FONT_HERSHEY_SIMPLEX, 0.5 , (0,0,0))
+
+        cv2.imshow('Frame', image)
+        cv2.imshow('FG Mask', fgMask)
+
+        keyboard = cv2.waitKey(200)
+        return fgMask
 
     def segment_slab(self, labels, distances, cluster, centers):
         label_ = []
@@ -177,13 +216,15 @@ class Segmentation():
         return transformed_points
 
     def run(self):
+        backSub = self.backgroundSegmenter()
         image = self.get_image()
-        image_no_hsv = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
+        image_no_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         utils.show_image("Original Image", image_no_hsv)
 
-        segmented_image = self.segment_and_threshold_image(image)
+        segmented_image = self.segment(backSub,image)
+
+        segmented_image = cv2.erode(segmented_image, None, iterations=17)
         segmented_image = cv2.dilate(segmented_image, None, iterations=1)
-        segmented_image = cv2.erode(segmented_image, None, iterations=1)
         utils.show_image("Segmented Image", segmented_image)
 
         box, cnt = self.find_contours(segmented_image)
